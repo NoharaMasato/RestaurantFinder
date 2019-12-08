@@ -5,13 +5,13 @@ require 'line/bot'
 require 'uri'
 
 GURUNAVI_URL="https://api.gnavi.co.jp/RestSearchAPI/v3" 
+
 def getShopFromGuruNavi(lat,lon)
   uri=URI(GURUNAVI_URL)
   uri.query=URI.encode_www_form({
     keyid: ENV["GURUNAVI_API_KEY"],
     latitude: lat,
-    longitude: lon,
-    format: "json"
+    longitude: lon
   })
   puts "uri=#{uri}"
   response_json=Net::HTTP.get(uri)
@@ -87,10 +87,9 @@ def webhook(event:, context:)
 		      #shops = get_shops(result)
 	      end
 
-        puts "shops=#{shops}"
-        if shops!=[]
+        if shops.any?
           if shops.class == Array
-            shop = shops.sample #任意のものを一個選ぶ
+            shop = shops.sample
           else
             shop = shops
           end
@@ -109,30 +108,18 @@ def webhook(event:, context:)
           if shop_name != nil && url != nil && category != nil
             response = "【店名】" + shop_name + "\n" + "【カテゴリー】" + category + "\n" + "【営業時間と定休日】" + open_time + "\n" + holiday + "\n" + url
           end
-          puts "response=#{response}"
-          puts "line_message=#{line_message.type}"
-          puts "event=#{event}"
-          event = JSON.parse event["body"]
-
-          message = {
-              type: 'text',
-              text: response
-          }
-          puts "replyToken=#{event["events"][0]["replyToken"]}"
-          client.reply_message(event["events"][0]["replyToken"], message)
-          # case event #case文　caseの値がwhenと一致する時にwhenの中の文章が実行される(switch文みたいなもの)
-          # when Line::Bot::Event::Message
-          #     puts "aaaa"
-          #     case event.type
-          #     when Line::Bot::Event::MessageType::Text,Line::Bot::Event::MessageType::Location
-          #       message = {
-          #           type: 'text',
-          #           text: response
-          #       }
-          #       puts "event['replyToken']=#{event['replyToken']}"
-          #     end
-          # end
+        else
+          response = "該当店舗はありません"
         end
+
+        event = JSON.parse event["body"]
+        puts event
+
+        message = {
+          type: 'text',
+          text: response
+        }
+        client.reply_message(event["events"][0]["replyToken"], message)
     }
 end
 
