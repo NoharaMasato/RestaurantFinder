@@ -1,0 +1,5 @@
+serverless.yml
+.serverless/*
+.bundle/*
+vendor
+node_modules
