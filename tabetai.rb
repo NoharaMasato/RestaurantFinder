@@ -36,8 +36,8 @@ def get_name(user_id) #ユーザー情報の取得
     response = @client.get_profile(user_id)
     case response
     when Net::HTTPSuccess then
-	      username = JSON.parse(response.body)['displayName'] #名前が取得できる
-	      `curl -X POST -H 'Content-type: application/json' --data '{"text":"#{username}"}' https://hooks.slack.com/services/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`
+	      username = JSON.parse(response.body)['displayName']
+	      `curl -X POST -H 'Content-type: application/json' --data '{"text":"#{username}"}' #{SLACK_WEBHOOK_URL}`
 	      return username
     end
 end
